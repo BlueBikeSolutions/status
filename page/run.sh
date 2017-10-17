@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 yarn run build
 
 for environment in prod nonprod; do
