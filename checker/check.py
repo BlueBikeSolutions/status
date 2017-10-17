@@ -92,7 +92,7 @@ def main():
                 add_status(data, group, False, 'Error checking')
 
 
-    bucket_uri = 's3://bbs-status-{env}/{name}.json'.format(
+    bucket_uri = 's3://{env}.status.bluebike.hosting/{name}.json'.format(
         env=os.environ['ENVIRONMENT'],
         name=filename,
     )
