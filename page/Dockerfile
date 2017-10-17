@@ -13,5 +13,3 @@ RUN yarn install --frozen-lockfile --non-interactive && yarn cache clean
 
 ADD services/ /code/services/
 ADD run.sh /code/run.sh
-
-ADD webpack.config.js /code/webpack.config.js
