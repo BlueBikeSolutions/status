@@ -21,6 +21,7 @@ node('master') {
             --rm \
             --volume $(pwd)/src:/code/src \
             --volume $(pwd)/public:/code/public \
+            --volume $(pwd)/services:/code/services \
             --env ENVIRONMENT=nonprod \
             bbs-status:latest \
             /code/run.sh
