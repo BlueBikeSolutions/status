@@ -33,7 +33,7 @@ node('master') {
         eval "$(docker run --rm awscli ecr get-login --no-include-email --region ap-southeast-2)"
         '''
       }
-      withenv(['DOCKER_IMAGE=696234038582.dkr.ecr.ap-southeast-2.amazonaws.com/status-page-checker']) {
+      withEnv(['DOCKER_IMAGE=696234038582.dkr.ecr.ap-southeast-2.amazonaws.com/status-page-checker']) {
         stage('Build checker Dockerfile') {
           sh '''
             set -e
