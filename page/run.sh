@@ -1,4 +1,8 @@
 #!/bin/bash
 set -e
 yarn run build
-aws s3 sync /code/dist/ s3://bbs-status-${ENVIRONMENT}/
+
+for environment in prod nonprod; do
+  aws s3 sync /code/dist/ s3://bbs-status-$environment/
+  aws s3 cp /code/services/$environment.json s3://bbs-status-$environment/services.json
+done
