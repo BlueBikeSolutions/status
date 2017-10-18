@@ -42,10 +42,17 @@ class ReleaseRow extends Component {
       key={ release.id }
       { ...otherProps }
       header={
-        <Badge
-          status={ this.badgeStatus() }
-          text={ release.name }
-        />
+        <div style={{ display: 'flex', paddingRight: '1em' }}>
+          <div style={{ flexGrow: 1 }}>
+            <Badge
+              status={ this.badgeStatus() }
+              text={ release.name }
+            />
+          </div>
+          <div style={{ flexShrink: 1 }}>
+            { this.state.time }
+          </div>
+        </div>
       }
     >
       <Spin spinning={ this.state.loading }>
