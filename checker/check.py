@@ -60,7 +60,7 @@ def main():
 
     filename = sys.argv[1]
     data = {
-        'time': datetime.datetime.now().isoformat(),
+        'time': datetime.datetime.now(datetime.timezone.utc).isoformat(),
         'services': {},
     }
 
