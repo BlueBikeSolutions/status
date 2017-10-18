@@ -1,4 +1,5 @@
-import { Badge, Card, Col, Collapse, Layout, Row, Spin } from 'antd'
+import { Badge, Card, Col, Collapse, Layout, Popover, Row, Spin } from 'antd'
+import moment from 'moment'
 import React, { Component } from 'react'
 
 import 'antd/dist/antd.min.css'
@@ -21,9 +22,18 @@ class ReleaseRow extends Component {
   componentWillMount() {
     fetch(`/${this.props.release.id}.json`).then(
       resp => resp.json().then(release => {
+        const time = moment(release.time)
+        setInterval(() => {
+          this.setState({
+            timeTextRelative: time.fromNow(),
+            timeTextAbsolute: time.format('MMMM Do YYYY, h:mm:ss a'),
+          })
+        }, 1000)
         this.setState({
           loading: false,
           okay: Object.values(release.services).every(service => service.okay),
+          timeTextRelative: time.fromNow(),
+          timeTextAbsolute: time.format('MMMM Do YYYY, h:mm:ss a'),
           ...release,
         })
       })
@@ -50,7 +60,11 @@ class ReleaseRow extends Component {
             />
           </div>
           <div style={{ flexShrink: 1 }}>
-            { this.state.time }
+            <Popover content={ this.state.timeTextAbsolute }>
+              <a>
+                { this.state.timeTextRelative }
+              </a>
+            </Popover>
           </div>
         </div>
       }
