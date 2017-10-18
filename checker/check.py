@@ -76,10 +76,10 @@ def main():
         namespace = None
         try:
             parts = arg.split(':')
-            if len(parts) == 3
-                group, res_type, res_name = parts.split(':')
+            if len(parts) == 3:
+                group, res_type, res_name = parts
             else:
-                group, res_type, namespace, res_name = parts.split(':')
+                group, res_type, namespace, res_name = parts
 
         except Exception:
             logging.exception("Couldn't check service '%s'" % arg)
