@@ -10,36 +10,87 @@ const { Header, Content } = Layout
 function undef(value) { return typeof value === 'undefined' }
 
 
-class App extends Component {
+class ReleaseRow extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      loadingServices: true,
+      loading: true,
       services: [],
     }
   }
   componentWillMount() {
-    fetch('/services.json').then(
-      resp => resp.json().then(data => {
+    fetch(`/${this.props.release.id}.json`).then(
+      resp => resp.json().then(release => {
         this.setState({
-          loadingServices: false,
-          services: data.map(inner => ({
-            loading: true,
-            parts: {},
-            ...inner
-          })),
+          loading: false,
+          okay: Object.values(release.services).every(service => service.okay),
+          ...release,
         })
-        data.forEach((inner, idx) => {
-          fetch(`/${ inner.id }.json`).then(resp => resp.json().then(parts => {
-            const newServices = [...this.state.services]
-            newServices[idx] = {
-              ...newServices[idx],
-              loading: false,
-              okay: Object.values(parts).every(part => part.okay),
-              parts,
-            }
-            this.setState({ services: newServices })
-          }))
+      })
+    )
+  }
+
+  badgeStatus = () => {
+    if (this.state.loading) return 'processing'
+    if (this.state.okay) return 'success'
+    return 'error'
+  }
+
+  render() {
+    const { release, ...otherProps } = this.props
+    return <Collapse.Panel
+      key={ release.id }
+      { ...otherProps }
+      header={
+        <Badge
+          status={ this.badgeStatus() }
+          text={ release.name }
+        />
+      }
+    >
+      <Spin spinning={ this.state.loading }>
+        { this.state.loading ? null : <Row gutter={ 12 }>
+          { Object.entries(this.state.services)
+              .map(([id, { okay, errors }]) =>
+                <Col
+                  key={ id }
+                  span={ 6 } style={{ margin: '6px 0px' }}
+                >
+                  <Card
+                    title={ <Badge
+                      status={ okay ? 'success' : 'error' }
+                      text={ id }
+                    /> }
+                  >
+                    { okay ?
+                      <p>No issues detected</p> :
+                      errors.map(message => <p>{ message }</p>)
+                    }
+                  </Card>
+                </Col>
+              )
+          }
+        </Row> }
+      </Spin>
+    </Collapse.Panel>
+  }
+}
+
+
+class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      loadingReleases: true,
+      releases: [],
+    }
+  }
+  componentWillMount() {
+    fetch('/services.json').then(
+      resp => resp.json().then(releases => {
+        this.setState({
+          loadingReleases: false,
+          releases: releases,
         })
       })
     )
@@ -51,7 +102,7 @@ class App extends Component {
         <h1>Service Status</h1>
       </Header>
 
-      <Spin spinning={ this.state.loadingServices }>
+      <Spin spinning={ this.state.loadingReleases }>
         <Content style={{ padding: '50px' }}>
           <div style={{
             background: '#fff',
@@ -59,30 +110,8 @@ class App extends Component {
             minHeight: 280,
           }}>
             <Collapse>
-              { this.state.services.map(data =>
-                <Collapse.Panel
-                  key={ data.id }
-                  header={
-                    <Badge
-                      status={ undef(data.okay) ? 'processing' : data.okay ? 'success' : 'error' }
-                      text={ data.name }
-                    />
-                  }
-                ><Spin spinning={ data.loading }>
-                    { data.loading ? null : <Row gutter={ 12 }>
-                      { Object.entries(data.parts).map(([id, { okay, errors }]) =>
-                        <Col span={ 6 } style={{ margin: '6px 0px' }} ><Card title={ <Badge
-                          status={ okay ? 'success' : 'error' }
-                          text={ id }
-                        /> }>
-                          { okay ?
-                              <p>No issues detected</p> :
-                              errors.map(message => <p>{ message }</p>)
-                          }
-                        </Card></Col>
-                      ) }
-                    </Row> }
-                </Spin></Collapse.Panel>
+              { this.state.releases.map(release =>
+                <ReleaseRow release={ release } />
               ) }
             </Collapse>
           </div>

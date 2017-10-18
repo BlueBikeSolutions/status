@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import json
 import logging
 import os
@@ -43,6 +44,7 @@ def check_all(res_type, match):
     ]
 
 def add_status(data, group, okay, message):
+    data = data['services']
     group_data = data[group] = data.get(group, {
         'okay': True,
         'errors': [],
@@ -57,7 +59,10 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     filename = sys.argv[1]
-    data = {}
+    data = {
+        'time': datetime.datetime.now().isoformat(),
+        'services': {},
+    }
 
     for arg in sys.argv[2:]:
         logging.info("Checking '%s'", arg)
