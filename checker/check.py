@@ -103,7 +103,11 @@ def main():
     )
     logging.info('Writing to S3')
     proc = subprocess.Popen(
-        ['aws', 's3', 'cp', '-', bucket_uri],
+        [
+            'aws', 's3', 'cp',
+            '-', bucket_uri,
+            '--content-type', 'application/json',
+        ],
         stdin=subprocess.PIPE,
     )
     out, err = proc.communicate(json.dumps(data).encode())
