@@ -32,15 +32,22 @@ def check_data(data, condition_name):
     return False, '%s condition not found' % condition_name
 
 
-def check_single(res_type, name):
-    data = kubectl_get(res_type, name)
+def check_single(res_type, name, namespace):
+    if namespace:
+        data = kubectl_get(res_type, name, '-n', namespace)
+    else:
+        data = kubectl_get(res_type, name)
     return check_data(data, CONDITION_NAMES[res_type])
 
 
-def check_all(res_type, match):
+def check_all(res_type, match, namespace):
+    if namespace:
+        data_list = kubectl_get(res_type, '-l', match, '-n', namespace)
+    else:
+        data_list = kubectl_get(res_type, '-l', match)
     return [
         check_data(data, CONDITION_NAMES[res_type])
-        for data in kubectl_get(res_type, '-l', match)['items']
+        for data in data_list['items']
     ]
 
 def add_status(data, group, okay, message):
@@ -66,8 +73,13 @@ def main():
 
     for arg in sys.argv[2:]:
         logging.info("Checking '%s'", arg)
+        namespace = None
         try:
-            group, res_type, res_name = arg.split(':')
+            parts = arg.split(':')
+            if len(parts) == 3
+                group, res_type, res_name = parts.split(':')
+            else:
+                group, res_type, namespace, res_name = parts.split(':')
 
         except Exception:
             logging.exception("Couldn't check service '%s'" % arg)
@@ -83,10 +95,10 @@ def main():
 
                 if res_type in CONDITION_NAMES:
                     if plural:
-                        for okay, message in check_all(res_type, res_name):
+                        for okay, message in check_all(res_type, res_name, namespace):
                             add_status(data, group, okay, message)
                     else:
-                        okay, message = check_single(res_type, res_name)
+                        okay, message = check_single(res_type, res_name, namespace)
                         add_status(data, group, okay, message)
 
                 else:
